@@ -4,17 +4,18 @@ import { ethers } from "ethers";
 import "./App.css";
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [ipfsHash, setIpfsHash] = useState("");
-  const [storedHash, setStoredHash] = useState("");
-  const [account, setAccount] = useState(null);
-  const [provider, setProvider] = useState(null);
-  const [balance, setBalance] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null); //Stores the file selected by the user for upload
+  const [ipfsHash, setIpfsHash] = useState(""); //Stores the IPFS hash after the file is uploaded
+  const [storedHash, setStoredHash] = useState("");//Holds a retrieved IPFS hash (possibly from a smart contract).
+  const [account, setAccount] = useState(null); //Stores the Ethereum wallet address of the connected use
+  const [provider, setProvider] = useState(null); //Stores the Ethereum provider (e.g., MetaMask, Infura).
+  const [balance, setBalance] = useState(null); //Holds the Ethereum balance of the connected wallet
+  const [isConnected, setIsConnected] = useState(false); //Tracks whether the wallet is connected (true or false)
+  const [errorMessage, setErrorMessage] = useState(null); //Stores error messages related to connection or file upload failures.
 
   // Replace these with your deployed contract's details
-  const contractAddress = "0xf54b2bd705e8025a8f93c31451cf304771a3e9e8";
+  const contractAddress = "0xf54b2bd705e8025a8f93c31451cf304771a3e9e8"; //replacing contract address 
+  //replacing ABI 
   const contractABI = [
     {
       "inputs": [],
@@ -43,11 +44,11 @@ function App() {
       "type": "function"
     }
   ];
-
+//handle, extract, update file state
   const changeHandler = (event) => {
     setSelectedFile(event.target.files[0]);
   };
-
+//This function connects the user's Ethereum wallet (e.g., MetaMask) to the React app using Ethers.js
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
@@ -55,25 +56,25 @@ function App() {
         await provider.send("eth_requestAccounts", []); // Request account access
 
         const signer = provider.getSigner(); // Get the signer
-        const address = await signer.getAddress();
-
-        setAccount(address);
-        setProvider(provider);
-        setIsConnected(true);
-        fetchBalance(provider, address);
+        const address = await signer.getAddress(); //Retrieve account address
+//Update React state (if successful)
+        setAccount(address); //Stores the connected wallet address
+        setProvider(provider); //Saves the provider for future transactions
+        setIsConnected(true); //Marks the wallet as connected
+        fetchBalance(provider, address); //Fetches and updates the user's balance
         setErrorMessage(null); // Clear any previous errors
       } catch (error) {
         console.error("Error connecting:", error);
         setErrorMessage(error.message); // Set the error message for display
         setIsConnected(false); // Ensure isConnected is false in case of error
-        setAccount(null);
-        setBalance(null);
+        setAccount(null); //Clears the stored Ethereum wallet address
+        setBalance(null); //Clears the user's Ethereum balance
       }
     } else {
-      setErrorMessage("Please install MetaMask!");
+      setErrorMessage("Please install MetaMask!"); //display the error message
     }
   };
-
+//This function resets wallet-related states to simulate a wallet disconnection in a React application
   const disconnectWallet = async () => {
     if (window.ethereum && provider) {
       try {
@@ -89,7 +90,7 @@ function App() {
       }
     }
   };
-
+//This function retrieves the Ethereum balance of a connected wallet and updates the state
   const fetchBalance = async (provider, address) => {
     try {
       const balance = await provider.getBalance(address);
@@ -99,14 +100,13 @@ function App() {
       console.error("Error fetching balance:", error);
     }
   };
-
+//This function retrieves the Ethereum balance of a connected wallet and updates the state.
   const handleSubmission = async () => {
     try {
       if (!selectedFile) {
         console.error("No file selected");
         return;
       }
-
       const response = await pinata.upload.file(selectedFile);
       const ipfsHash = response.IpfsHash;
       setIpfsHash(ipfsHash);
@@ -116,7 +116,7 @@ function App() {
       console.log("File upload failed:", error);
     }
   };
-
+//This function store IPFS hash on blockchain
   const storeHashOnBlockchain = async (hash) => {
     try {
       // Get the signer
@@ -134,7 +134,7 @@ function App() {
       console.log("Failed to store IPFS hash on blockchain:", error);
     }
   };
-
+//This function retrieve IPFS hash on blockchain
   const retrieveHashFromBlockchain = async () => {
     try {
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
@@ -148,7 +148,7 @@ function App() {
       console.log("Failed to retrieve IPFS hash from blockchain:", error);
     }
   };
-
+//This React component renders a UI
   return (
     <div className="app-container">
       <h1>MetaMask Connection</h1>
@@ -160,7 +160,7 @@ function App() {
           <p>Balance: {balance} ETH</p>
           <div className="upload-section">
             <label className="form-label">Choose File</label>
-            <input type="file" onChange={changeHandler} className="file-input" />
+            <input type="file" onChange={changeHandler} className="file-input" /> 
             <button onClick={handleSubmission} className="submit-button">
               Submit
             </button>
