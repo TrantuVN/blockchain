@@ -1,20 +1,21 @@
-import React, { useState } from "react";//Often, you’ll want your component to “remember” some information and display it
+import React, { useState } from "react"; //Often, you’ll want your component to “remember” some information and display it
 import { pinata } from "./config";
 import { ethers } from "ethers";
-import "./App.css";
+import "./App.css"; //the styles for your components
 
+//Now you can declare a state variable inside your component,useState is declares a state variable that you can update directly.
 function App() {
-  const [selectedFile, setSelectedFile] = useState(null); //Stores the file selected by the user for upload
-  const [ipfsHash, setIpfsHash] = useState(""); //Stores the IPFS hash after the file is uploaded
-  const [storedHash, setStoredHash] = useState("");//Holds a retrieved IPFS hash (possibly from a smart contract).
-  const [account, setAccount] = useState(null); //Stores the Ethereum wallet address of the connected use
-  const [provider, setProvider] = useState(null); //Stores the Ethereum provider (e.g., MetaMask, Infura).
-  const [balance, setBalance] = useState(null); //Holds the Ethereum balance of the connected wallet
-  const [isConnected, setIsConnected] = useState(false); //Tracks whether the wallet is connected (true or false)
-  const [errorMessage, setErrorMessage] = useState(null); //Stores error messages related to connection or file upload failures.
+  const [selectedFile, setSelectedFile] = useState(null);//You’ll get two things from useState: the current state (selectedFile), and the function that lets you update it (setSelectedFile)
+  const [ipfsHash, setIpfsHash] = useState(""); //
+  const [storedHash, setStoredHash] = useState("");
+  const [account, setAccount] = useState(null); 
+  const [provider, setProvider] = useState(null); 
+  const [balance, setBalance] = useState(null); 
+  const [isConnected, setIsConnected] = useState(false); 
+  const [errorMessage, setErrorMessage] = useState(null); 
 
   // Replace these with your deployed contract's details
-  const contractAddress = "0xf54b2bd705e8025a8f93c31451cf304771a3e9e8"; //replacing contract address 
+  const contractAddress = "0xf54b2bd705e8025a8f93c31451cf304771a3e9e8";
   //replacing ABI 
   const contractABI = [
     {
@@ -44,11 +45,11 @@ function App() {
       "type": "function"
     }
   ];
-//handle, extract, update file state
+//
   const changeHandler = (event) => {
     setSelectedFile(event.target.files[0]);
   };
-//This function connects the user's Ethereum wallet (e.g., MetaMask) to the React app using Ethers.js
+//T
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
@@ -58,27 +59,27 @@ function App() {
         const signer = provider.getSigner(); // Get the signer
         const address = await signer.getAddress(); //Retrieve account address
 //Update React state (if successful)
-        setAccount(address); //Stores the connected wallet address
-        setProvider(provider); //Saves the provider for future transactions
-        setIsConnected(true); //Marks the wallet as connected
-        fetchBalance(provider, address); //Fetches and updates the user's balance
-        setErrorMessage(null); // Clear any previous errors
+        setAccount(address); 
+        setProvider(provider); 
+        setIsConnected(true); 
+        fetchBalance(provider, address); 
+        setErrorMessage(null); //
       } catch (error) {
         console.error("Error connecting:", error);
-        setErrorMessage(error.message); // Set the error message for display
-        setIsConnected(false); // Ensure isConnected is false in case of error
-        setAccount(null); //Clears the stored Ethereum wallet address
-        setBalance(null); //Clears the user's Ethereum balance
+        setErrorMessage(error.message); 
+        setIsConnected(false); 
+        setAccount(null); 
+        setBalance(null); 
       }
     } else {
-      setErrorMessage("Please install MetaMask!"); //display the error message
+      setErrorMessage("Please install MetaMask!"); 
     }
   };
-//This function resets wallet-related states to simulate a wallet disconnection in a React application
+//
   const disconnectWallet = async () => {
     if (window.ethereum && provider) {
       try {
-        // No direct disconnect in MetaMask, but you can reset state
+        // 
         setAccount(null);
         setBalance(null);
         setProvider(null);
@@ -90,7 +91,7 @@ function App() {
       }
     }
   };
-//This function retrieves the Ethereum balance of a connected wallet and updates the state
+//
   const fetchBalance = async (provider, address) => {
     try {
       const balance = await provider.getBalance(address);
@@ -100,7 +101,7 @@ function App() {
       console.error("Error fetching balance:", error);
     }
   };
-//This function retrieves the Ethereum balance of a connected wallet and updates the state.
+//
   const handleSubmission = async () => {
     try {
       if (!selectedFile) {
@@ -116,7 +117,7 @@ function App() {
       console.log("File upload failed:", error);
     }
   };
-//This function store IPFS hash on blockchain
+//
   const storeHashOnBlockchain = async (hash) => {
     try {
       // Get the signer
@@ -134,12 +135,12 @@ function App() {
       console.log("Failed to store IPFS hash on blockchain:", error);
     }
   };
-//This function retrieve IPFS hash on blockchain
+//
   const retrieveHashFromBlockchain = async () => {
     try {
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
 
-      // Retrieve the IPFS hash from the blockchain
+      // 
       const retrievedHash = await contract.getIPFSHash();
       setStoredHash(retrievedHash);
 
@@ -148,7 +149,10 @@ function App() {
       console.log("Failed to retrieve IPFS hash from blockchain:", error);
     }
   };
-//This React component renders a UI
+//This React component renders a UI, <button> is a JSX element. A JSX element is a combination of JavaScript code and HTML tags that describes what you’d like to display
+// ClassName="" is a button property or prop that tells CSS how to style the button
+// >X< is the text displayed inside of the button and </button> closes the JSX element to indicate that any following content shouldn’t be placed inside the button.
+// div: group into a row
   return (
     <div className="app-container">
       <h1>MetaMask Connection</h1>
@@ -156,7 +160,7 @@ function App() {
         <button onClick={connectWallet}>Connect Wallet</button>
       ) : (
         <div>
-          <p>Connected Account: {account}</p>
+          <p>Connected Account: {account}</p> 
           <p>Balance: {balance} ETH</p>
           <div className="upload-section">
             <label className="form-label">Choose File</label>
@@ -165,7 +169,6 @@ function App() {
               Submit
             </button>
           </div>
-
           {ipfsHash && (
             <div className="result-section">
               <p>
@@ -173,7 +176,6 @@ function App() {
               </p>
             </div>
           )}
-
           <div className="retrieve-section">
             <button onClick={retrieveHashFromBlockchain} className="retrieve-button">
               Retrieve Stored Hash
@@ -188,7 +190,6 @@ function App() {
         </div>
       )}
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>} {/* Display error message */}
-
     </div>
   );
 }
