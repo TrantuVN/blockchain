@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react";//Often, you’ll want your component to “remember” some information and display it
 import { pinata } from "./config";
 import { ethers } from "ethers";
 import "./App.css";
