@@ -45,27 +45,27 @@ function App() {
       "type": "function"
     }
   ];
-//
+//clearly indicates that the function handles file changes,the file is stored in the selectedFile state and its name is displayed below.
   const changeHandler = (event) => {
     setSelectedFile(event.target.files[0]);
   };
-//T
+//This function attempts to connect to MetaMask (or another Ethereum provider) and retrieve the user's wallet address.
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new ethers.providers.Web3Provider(window.ethereum); //This creates an ethers.js Web3 provider, which allows interaction with the Ethereum blockchain.
         await provider.send("eth_requestAccounts", []); // Request account access
 
-        const signer = provider.getSigner(); // Get the signer
+        const signer = provider.getSigner(); // Get the signer and allows signing transactions
         const address = await signer.getAddress(); //Retrieve account address
 //Update React state (if successful)
-        setAccount(address); 
-        setProvider(provider); 
-        setIsConnected(true); 
-        fetchBalance(provider, address); 
-        setErrorMessage(null); //
+        setAccount(address); //Stores the connected wallet address.
+        setProvider(provider); //Stores the Ethereum provider (used for blockchain interactions).
+        setIsConnected(true); //Updates the UI to indicate a successful connection.
+        fetchBalance(provider, address); //Calls a function to retrieve and display the user's ETH balance
+        setErrorMessage(null); //Clears any previous error messages
       } catch (error) {
-        console.error("Error connecting:", error);
+        console.error("Error connecting:", error);//If an error occurs, it is logged in the console.
         setErrorMessage(error.message); 
         setIsConnected(false); 
         setAccount(null); 
@@ -75,11 +75,11 @@ function App() {
       setErrorMessage("Please install MetaMask!"); 
     }
   };
-//
+//Disconnect with wallet
   const disconnectWallet = async () => {
     if (window.ethereum && provider) {
       try {
-        // 
+        // Reset the state to "disconnected"
         setAccount(null);
         setBalance(null);
         setProvider(null);
@@ -87,11 +87,11 @@ function App() {
         setErrorMessage(null);
 
       } catch (error) {
-        console.error("Error disconnecting:", error);
+        console.error("Error disconnecting:", error); //If an error occurs, it is logged in the console.
       }
     }
   };
-//
+//Fetches the wallet balance from the Ethereum blockchain.
   const fetchBalance = async (provider, address) => {
     try {
       const balance = await provider.getBalance(address);
@@ -101,7 +101,7 @@ function App() {
       console.error("Error fetching balance:", error);
     }
   };
-//
+//The function handleSubmission uploads a file to IPFS using Pinata and stores the resulting IPFS hash on the blockchain
   const handleSubmission = async () => {
     try {
       if (!selectedFile) {
@@ -111,16 +111,15 @@ function App() {
       const response = await pinata.upload.file(selectedFile);
       const ipfsHash = response.IpfsHash;
       setIpfsHash(ipfsHash);
-
       await storeHashOnBlockchain(ipfsHash);
     } catch (error) {
       console.log("File upload failed:", error);
     }
   };
-//
+//The function storeHashOnBlockchain interacts with an Ethereum smart contract to store an IPFS hash on the blockchain using ethers.js
   const storeHashOnBlockchain = async (hash) => {
     try {
-      // Get the signer
+      // gets the current connected wallet 
       const signer = provider.getSigner();
 
       // Create a contract instance
@@ -135,15 +134,14 @@ function App() {
       console.log("Failed to store IPFS hash on blockchain:", error);
     }
   };
-//
+//Retrieve the IPFS hash from the contract
   const retrieveHashFromBlockchain = async () => {
     try {
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
-
-      // 
+      // Calls the smart contract function getIPFSHash(), which fetches the stored IPFS hash.
       const retrievedHash = await contract.getIPFSHash();
+      //Updates the React state setStoredHash(retrievedHash) with the retrieved hash
       setStoredHash(retrievedHash);
-
       console.log("Retrieved IPFS hash from blockchain:", retrievedHash);
     } catch (error) {
       console.log("Failed to retrieve IPFS hash from blockchain:", error);
