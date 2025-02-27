@@ -1,3 +1,5 @@
+to run cross-env
+### npm install cross-env --save-dev
 To run this project, first install packages using
 
 ### `npm install`
